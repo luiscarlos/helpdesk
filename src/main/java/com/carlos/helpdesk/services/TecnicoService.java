@@ -15,6 +15,8 @@ import com.carlos.helpdesk.repository.PessoaRepository;
 import com.carlos.helpdesk.repository.TecnicoRepository;
 import com.carlos.helpdesk.services.exceptions.ObjectnotFoundException;
 
+import jakarta.validation.Valid;
+
 @Service
 public class TecnicoService {
 	
@@ -49,6 +51,19 @@ public class TecnicoService {
 		Tecnico newObj = new Tecnico(objDTO);
 		return tecnicoRepository.save(newObj);
 	}
+	
+	
+	public Tecnico update(Integer id, @Valid TecnicoDTO objDTO) {
+		objDTO.setId(id);
+		Tecnico oldObj = findById(id);
+		
+		//if(!objDTO.getSenha().equals(oldObj.getSenha())) 
+		//	objDTO.setSenha(encoder.encode(objDTO.getSenha()));
+		
+		validaPorCpfEEmail(objDTO);
+		oldObj = new Tecnico(objDTO);
+		return tecnicoRepository.save(oldObj);
+	}
 
 	private void validaPorCpfEEmail(TecnicoDTO objDTO) {
 		Optional<Pessoa> obj = pessoaRepository.findByCpf(objDTO.getCpf());
@@ -61,6 +76,9 @@ public class TecnicoService {
 			throw new DataIntegrityViolationException("E-mail já cadastrado no sistema!");
 		}
 	}
+
+
+
 	
 
 
