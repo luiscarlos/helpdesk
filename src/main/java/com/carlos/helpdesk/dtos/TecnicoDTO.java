@@ -6,11 +6,13 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import javax.validation.constraints.NotNull;
+
 import com.carlos.helpdesk.enums.Perfil;
 import com.carlos.helpdesk.model.Tecnico;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
-import jakarta.validation.constraints.NotNull;
+
 
 public class TecnicoDTO implements Serializable {
 

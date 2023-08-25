@@ -4,6 +4,8 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
+import javax.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -15,12 +17,11 @@ import com.carlos.helpdesk.model.Tecnico;
 import com.carlos.helpdesk.repository.ChamadoRepository;
 import com.carlos.helpdesk.services.exceptions.ObjectnotFoundException;
 
-import jakarta.validation.Valid;
+
 
 @Service
 public class ChamadoService {
 
-	
 	
 	
 	@Autowired
@@ -66,7 +67,7 @@ public class ChamadoService {
 			chamado.setId(obj.getId());
 		}
 		
-		if(obj.getStatud().equals(2)) {
+		if(obj.getStatus().equals(2)) {
 			chamado.setDataFechamento(LocalDate.now());
 		}
 		chamado.setTecnico(tecnico);

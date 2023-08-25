@@ -4,8 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import javax.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.carlos.helpdesk.dtos.ClienteDTO;
@@ -15,7 +18,7 @@ import com.carlos.helpdesk.repository.ClienteRepository;
 import com.carlos.helpdesk.repository.PessoaRepository;
 import com.carlos.helpdesk.services.exceptions.ObjectnotFoundException;
 
-import jakarta.validation.Valid;
+
 
 @Service
 public class ClienteService {
@@ -25,6 +28,9 @@ public class ClienteService {
 
 	@Autowired
 	private PessoaRepository pessoaRepository;
+	
+	@Autowired
+	  private BCryptPasswordEncoder encoder;
 
 	public Cliente findById(Integer id) {
 		Optional<Cliente> obj = tecnicoRepository.findById(id);
@@ -39,7 +45,7 @@ public class ClienteService {
 
 	public Cliente create(ClienteDTO objDTO) {
 		objDTO.setId(null);
-		// objDTO.setSenha(encoder.encode(objDTO.getSenha()));
+		objDTO.setSenha(encoder.encode(objDTO.getSenha()));
 		validaPorCpfEEmail(objDTO);
 		Cliente newObj = new Cliente(objDTO);
 		return tecnicoRepository.save(newObj);
@@ -49,8 +55,8 @@ public class ClienteService {
 		objDTO.setId(id);
 		Cliente oldObj = findById(id);
 
-		// if(!objDTO.getSenha().equals(oldObj.getSenha()))
-		// objDTO.setSenha(encoder.encode(objDTO.getSenha()));
+		if(!objDTO.getSenha().equals(oldObj.getSenha()))
+		objDTO.setSenha(encoder.encode(objDTO.getSenha()));
 
 		validaPorCpfEEmail(objDTO);
 		oldObj = new Cliente(objDTO);
