@@ -8,6 +8,7 @@ import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.carlos.helpdesk.dtos.TecnicoDTO;
@@ -23,50 +24,49 @@ import com.carlos.helpdesk.services.exceptions.ObjectnotFoundException;
 public class TecnicoService {
 
 	@Autowired
-	private TecnicoRepository tecnicoRepository;
-
+	private TecnicoRepository repository;
 	@Autowired
 	private PessoaRepository pessoaRepository;
+	@Autowired
+	private BCryptPasswordEncoder encoder;
 
 	public Tecnico findById(Integer id) {
-		Optional<Tecnico> obj = tecnicoRepository.findById(id);
-		return obj.orElseThrow(() -> new ObjectnotFoundException("Objeto não encontrado:" + id));
+		Optional<Tecnico> obj = repository.findById(id);
+		return obj.orElseThrow(() -> new ObjectnotFoundException("Objeto não encontrado! Id: " + id));
 	}
 
 	public List<Tecnico> findAll() {
-		ArrayList<Tecnico> tecnicos = (ArrayList<Tecnico>) tecnicoRepository.findAll();
-		// return tecnicos;
-		return tecnicoRepository.findAll();
+		return repository.findAll();
 	}
 
 	public Tecnico create(TecnicoDTO objDTO) {
 		objDTO.setId(null);
-		// objDTO.setSenha(encoder.encode(objDTO.getSenha()));
+		objDTO.setSenha(encoder.encode(objDTO.getSenha()));
 		validaPorCpfEEmail(objDTO);
 		Tecnico newObj = new Tecnico(objDTO);
-		return tecnicoRepository.save(newObj);
+		return repository.save(newObj);
 	}
-
+ 
 	public Tecnico update(Integer id, @Valid TecnicoDTO objDTO) {
 		objDTO.setId(id);
 		Tecnico oldObj = findById(id);
-
-		// if(!objDTO.getSenha().equals(oldObj.getSenha()))
-		// objDTO.setSenha(encoder.encode(objDTO.getSenha()));
-
+		
+		if(!objDTO.getSenha().equals(oldObj.getSenha())) 
+			objDTO.setSenha(encoder.encode(objDTO.getSenha()));
+		
 		validaPorCpfEEmail(objDTO);
 		oldObj = new Tecnico(objDTO);
-		return tecnicoRepository.save(oldObj);
+		return repository.save(oldObj);
 	}
 
 	public void delete(Integer id) {
 		Tecnico obj = findById(id);
-		
+
 		if (obj.getChamados().size() > 0) {
 			throw new DataIntegrityViolationException("Técnico possui ordens de serviço e não pode ser deletado!");
 		}
-		
-		tecnicoRepository.deleteById(id);
+
+		repository.deleteById(id);
 	}
 
 	private void validaPorCpfEEmail(TecnicoDTO objDTO) {
