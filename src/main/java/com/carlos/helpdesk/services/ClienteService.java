@@ -24,23 +24,19 @@ import com.carlos.helpdesk.services.exceptions.ObjectnotFoundException;
 public class ClienteService {
 
 	@Autowired
-	private ClienteRepository tecnicoRepository;
-
+	private ClienteRepository repository;
 	@Autowired
 	private PessoaRepository pessoaRepository;
-	
 	@Autowired
-	  private BCryptPasswordEncoder encoder;
+	private BCryptPasswordEncoder encoder;
 
 	public Cliente findById(Integer id) {
-		Optional<Cliente> obj = tecnicoRepository.findById(id);
-		return obj.orElseThrow(() -> new ObjectnotFoundException("Objeto não encontrado:" + id));
+		Optional<Cliente> obj = repository.findById(id);
+		return obj.orElseThrow(() -> new ObjectnotFoundException("Objeto não encontrado! Id: " + id));
 	}
 
 	public List<Cliente> findAll() {
-		ArrayList<Cliente> tecnicos = (ArrayList<Cliente>) tecnicoRepository.findAll();
-		// return tecnicos;
-		return tecnicoRepository.findAll();
+		return repository.findAll();
 	}
 
 	public Cliente create(ClienteDTO objDTO) {
@@ -48,29 +44,29 @@ public class ClienteService {
 		objDTO.setSenha(encoder.encode(objDTO.getSenha()));
 		validaPorCpfEEmail(objDTO);
 		Cliente newObj = new Cliente(objDTO);
-		return tecnicoRepository.save(newObj);
+		return repository.save(newObj);
 	}
 
 	public Cliente update(Integer id, @Valid ClienteDTO objDTO) {
 		objDTO.setId(id);
 		Cliente oldObj = findById(id);
-
-		if(!objDTO.getSenha().equals(oldObj.getSenha()))
-		objDTO.setSenha(encoder.encode(objDTO.getSenha()));
-
+		
+		if(!objDTO.getSenha().equals(oldObj.getSenha())) 
+			objDTO.setSenha(encoder.encode(objDTO.getSenha()));
+		
 		validaPorCpfEEmail(objDTO);
 		oldObj = new Cliente(objDTO);
-		return tecnicoRepository.save(oldObj);
+		return repository.save(oldObj);
 	}
 
 	public void delete(Integer id) {
 		Cliente obj = findById(id);
-		
+
 		if (obj.getChamados().size() > 0) {
 			throw new DataIntegrityViolationException("Cliente possui ordens de serviço e não pode ser deletado!");
 		}
-		
-		tecnicoRepository.deleteById(id);
+
+		repository.deleteById(id);
 	}
 
 	private void validaPorCpfEEmail(ClienteDTO objDTO) {
